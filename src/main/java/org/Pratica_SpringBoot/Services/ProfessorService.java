@@ -3,7 +3,7 @@ package org.Pratica_SpringBoot.Services;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.Pratica_SpringBoot.Controllers.CpfDuplicadoException;
+import org.Pratica_SpringBoot.GerenciamentoErros.ManipuladorExcecoesGlobais.CpfDuplicadoException;
 import org.Pratica_SpringBoot.Models.DTOs.ProfessorDTO;
 import org.Pratica_SpringBoot.Models.Entities.Professor;
 import org.Pratica_SpringBoot.Repositories.ProfessorRepository;

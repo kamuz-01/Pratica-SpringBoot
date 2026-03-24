@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import org.Pratica_SpringBoot.Controllers.CpfDuplicadoException;
+import org.Pratica_SpringBoot.GerenciamentoErros.ManipuladorExcecoesGlobais.CpfDuplicadoException;
 import org.Pratica_SpringBoot.Models.DTOs.EstudanteDTO;
 import org.Pratica_SpringBoot.Models.Entities.Estudante;
 import org.Pratica_SpringBoot.Repositories.EstudanteRepository;
