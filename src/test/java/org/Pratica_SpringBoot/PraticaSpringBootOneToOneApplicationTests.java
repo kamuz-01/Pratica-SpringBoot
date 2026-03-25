@@ -1,4 +1,4 @@
-package org.SpringBoot_OneToOne;
+package org.Pratica_SpringBoot;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
