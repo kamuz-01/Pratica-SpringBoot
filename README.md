@@ -34,6 +34,7 @@
   - [⚠️ Tratamento de Erros](#️-tratamento-de-erros)
   - [🔒 Segurança](#-segurança)
   - [📊 Logging](#-logging)
+  - [🧪 Testes Unitários](#-testes-unitários)
   - [🚀 Como Executar](#-como-executar)
     - [Pré-requisitos](#pré-requisitos)
     - [Configuração do banco](#configuração-do-banco)
@@ -276,6 +277,25 @@ Exemplo de linha no `api-access.log`:
 ```
 
 O interceptor de acesso é registrado via `WebMvcConfigurer` e registra cada requisição automaticamente ao término, sem impacto nas respostas da API.
+
+---
+
+## 🧪 Testes Unitários
+
+O projeto possui testes automatizados cobrindo as principais camadas da aplicação:
+
+- **Services**: validação de regras de negócio, persistência e exceções esperadas
+- **Controllers**: validação das rotas, status HTTP, retorno de JSON e tratamento de erros
+
+Os testes foram escritos com **JUnit 5**, **Mockito** e **MockMvc**. Para executar tudo localmente:
+
+```bash
+# Linux / macOS
+./mvnw test
+
+# Windows
+.\mvnw.cmd test
+```
 
 ---
 
