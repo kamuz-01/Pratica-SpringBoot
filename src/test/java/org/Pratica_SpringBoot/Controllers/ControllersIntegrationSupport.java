@@ -4,10 +4,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.Pratica_SpringBoot.GerenciamentoErros.ManipuladorExcecoesGlobais.CpfDuplicadoException;
 import org.Pratica_SpringBoot.Models.DTOs.CursoDTO;
 import org.Pratica_SpringBoot.Models.DTOs.EstudanteDTO;
+import org.Pratica_SpringBoot.Models.DTOs.DisciplinaDTO;
+import org.Pratica_SpringBoot.Models.DTOs.MatriculaDTO;
 import org.Pratica_SpringBoot.Models.DTOs.ProfessorDTO;
 import org.Pratica_SpringBoot.Services.CursoService;
 import org.Pratica_SpringBoot.Services.DisciplinaService;
@@ -22,6 +25,10 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -59,7 +66,24 @@ public abstract class ControllersIntegrationSupport {
     protected ProfessorService professorService;
 
     protected void stubCursoListarPadrao() {
-        when(cursoService.listarTodos()).thenReturn(java.util.List.of(cursoDTO(1L, "ADS", "Análise e Desenvolvimento de Sistemas", "Curso de tecnologia")));
+        when(cursoService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(
+                List.of(cursoDTO(1L, "ADS", "Análise e Desenvolvimento de Sistemas", "Curso de tecnologia")),
+                PageRequest.of(0, 10), 1));
+    }
+
+    protected void stubEstudanteListarPadrao() {
+        when(estudanteService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(
+                List.of(estudanteDTO(1L, "123.456.789-09", "Ana", "Silva", "20240001")), PageRequest.of(0, 10), 1));
+    }
+
+    protected void stubProfessorListarPadrao() {
+        when(professorService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(
+                List.of(professorDTO(1L, "987.654.321-00", "Bruno", "Lima", "Matemática")), PageRequest.of(0, 10), 1));
+    }
+
+    protected void stubDisciplinaListarPadrao() {
+        when(disciplinaService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(
+                List.of(disciplinaDTO(1L, "Programação", "Base", "PROG101", 80, 2L, 3L)), PageRequest.of(0, 10), 1));
     }
 
     protected void stubCursoNaoEncontrado() {
@@ -67,7 +91,7 @@ public abstract class ControllersIntegrationSupport {
     }
 
     protected void stubDisciplinaListarVazio() {
-        when(disciplinaService.listarTodos()).thenReturn(java.util.List.of());
+        when(disciplinaService.listarTodos(any(Pageable.class))).thenReturn(Page.empty(PageRequest.of(0, 10)));
     }
 
     protected void stubEstudanteCriarImagem() {
@@ -80,6 +104,12 @@ public abstract class ControllersIntegrationSupport {
 
     protected void stubProfessorCriarImagem() {
         when(professorService.criar(any(ProfessorDTO.class), any())).thenReturn(professorDTO(1L, "987.654.321-00", "Bruno", "Lima", "Matemática"));
+    }
+
+    protected void stubMatriculaListarPadrao() {
+        when(matriculaService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(
+                List.of(matriculaDTO(1L, 2L, 1, LocalDate.of(2026, 1, 15), 90.0, 8.5, org.Pratica_SpringBoot.Models.Enums.StatusMatricula.ATIVA)),
+                PageRequest.of(0, 10), 1));
     }
 
     protected void stubMatriculaCriar() {
@@ -161,6 +191,32 @@ public abstract class ControllersIntegrationSupport {
         dto.setEmail("bruno@email.com");
         dto.setSenha("senhaSegura1");
         dto.setEspecialidade(especialidade);
+        return dto;
+    }
+
+    protected DisciplinaDTO disciplinaDTO(Long id, String nome, String descricao, String codigo, Integer cargaHoraria,
+            Long idCurso, Long idProfessor) {
+        DisciplinaDTO dto = new DisciplinaDTO();
+        dto.setId_disciplina(id);
+        dto.setNome(nome);
+        dto.setDescricao(descricao);
+        dto.setCodigo(codigo);
+        dto.setCargaHoraria(cargaHoraria);
+        dto.setId_curso(idCurso);
+        dto.setId_professor(idProfessor);
+        return dto;
+    }
+
+    protected MatriculaDTO matriculaDTO(Long idEstudante, Long idDisciplina, Integer semestre, LocalDate dataMatricula,
+            Double frequencia, Double notaFinal, org.Pratica_SpringBoot.Models.Enums.StatusMatricula status) {
+        MatriculaDTO dto = new MatriculaDTO();
+        dto.setIdEstudante(idEstudante);
+        dto.setIdDisciplina(idDisciplina);
+        dto.setSemestre(semestre);
+        dto.setDataMatricula(dataMatricula);
+        dto.setFrequencia(frequencia);
+        dto.setNotaFinal(notaFinal);
+        dto.setStatus(status);
         return dto;
     }
 

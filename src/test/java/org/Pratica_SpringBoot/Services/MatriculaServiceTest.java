@@ -14,6 +14,10 @@ import org.Pratica_SpringBoot.Models.Mappers.MatriculaMapper;
 import org.Pratica_SpringBoot.Repositories.DisciplinaRepository;
 import org.Pratica_SpringBoot.Repositories.EstudanteRepository;
 import org.Pratica_SpringBoot.Repositories.MatriculaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,12 +78,13 @@ class MatriculaServiceTest {
 
     @Test
     void listarTodosDeveConverterEntidades() {
-        when(matriculaRepository.findAll()).thenReturn(List.of(matricula(10L, 1L, 2L)));
+        when(matriculaRepository.findAll(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(
+                new PageImpl<>(List.of(matricula(10L, 1L, 2L)), PageRequest.of(0, 10), 1));
 
-        List<MatriculaDTO> resultado = matriculaService.listarTodos();
+        Page<MatriculaDTO> resultado = matriculaService.listarTodos(PageRequest.of(0, 10));
 
-        assertEquals(1, resultado.size());
-        assertEquals(10L, resultado.get(0).getId_matricula());
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals(10L, resultado.getContent().get(0).getId_matricula());
     }
 
     @Test

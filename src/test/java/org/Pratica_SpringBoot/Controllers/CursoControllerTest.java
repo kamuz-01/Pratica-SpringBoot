@@ -16,6 +16,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.SortHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -69,6 +75,7 @@ class CursoControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(new CursoController(cursoService))
+                                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver(new SortHandlerMethodArgumentResolver()))
                 .setControllerAdvice(new ManipuladorExcecoesGlobais())
                 .build();
     }
@@ -155,34 +162,34 @@ class CursoControllerTest {
         verifyNoInteractions(cursoService);
     }
 
-    // =========================================================================
-    // GET /api/cursos
-    // =========================================================================
+        // =========================================================================
+        // GET /api/cursos
+        // =========================================================================
 
     @Test
     void listarTodosDeveRetornar200ComListaPopulada() throws Exception {
-        when(cursoService.listarTodos()).thenReturn(List.of(
+        when(cursoService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(
                 cursoDTO(1L, "ADS", "Análise e Desenvolvimento de Sistemas", "Curso de tecnologia"),
-                cursoDTO(2L, "MAT", "Matemática", null)));
+                cursoDTO(2L, "MAT", "Matemática", null)), PageRequest.of(0, 10), 2));
 
         mockMvc.perform(get("/api/cursos"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id_curso").value(1L))
-                .andExpect(jsonPath("$[0].codigo").value("ADS"))
-                .andExpect(jsonPath("$[1].id_curso").value(2L))
-                .andExpect(jsonPath("$[1].codigo").value("MAT"));
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].id_curso").value(1L))
+                .andExpect(jsonPath("$.content[0].codigo").value("ADS"))
+                .andExpect(jsonPath("$.content[1].id_curso").value(2L))
+                .andExpect(jsonPath("$.content[1].codigo").value("MAT"));
 
-        verify(cursoService).listarTodos();
+        verify(cursoService).listarTodos(any(Pageable.class));
     }
 
     @Test
     void listarTodosDeveRetornar200ComListaVazia() throws Exception {
-        when(cursoService.listarTodos()).thenReturn(List.of());
+        when(cursoService.listarTodos(any(Pageable.class))).thenReturn(Page.empty(PageRequest.of(0, 10)));
 
         mockMvc.perform(get("/api/cursos"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.content.length()").value(0));
     }
 
     // =========================================================================

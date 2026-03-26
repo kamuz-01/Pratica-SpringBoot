@@ -1,6 +1,5 @@
 package org.Pratica_SpringBoot.Services;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.Pratica_SpringBoot.Models.DTOs.MatriculaDTO;
@@ -11,6 +10,8 @@ import org.Pratica_SpringBoot.Models.Mappers.MatriculaMapper;
 import org.Pratica_SpringBoot.Repositories.DisciplinaRepository;
 import org.Pratica_SpringBoot.Repositories.EstudanteRepository;
 import org.Pratica_SpringBoot.Repositories.MatriculaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,8 +40,8 @@ public class MatriculaService {
         return matriculaMapper.toDto(matriculaRepository.save(matricula));
     }
 
-    public List<MatriculaDTO> listarTodos() {
-        return matriculaRepository.findAll().stream().map(matriculaMapper::toDto).toList();
+    public Page<MatriculaDTO> listarTodos(Pageable pageable) {
+        return matriculaRepository.findAll(pageable).map(matriculaMapper::toDto);
     }
 
     public MatriculaDTO buscarPorId(Long id) {

@@ -1,6 +1,5 @@
 package org.Pratica_SpringBoot.Services;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -9,6 +8,8 @@ import org.Pratica_SpringBoot.Models.DTOs.EstudanteDTO;
 import org.Pratica_SpringBoot.Models.Entities.Estudante;
 import org.Pratica_SpringBoot.Models.Mappers.EstudanteMapper;
 import org.Pratica_SpringBoot.Repositories.EstudanteRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,8 +53,8 @@ public class EstudanteService {
         return estudanteMapper.toDto(salvo);
     }
 
-    public List<EstudanteDTO> listarTodos() {
-        return estudanteRepository.findAll().stream().map(estudanteMapper::toDto).toList();
+    public Page<EstudanteDTO> listarTodos(Pageable pageable) {
+        return estudanteRepository.findAll(pageable).map(estudanteMapper::toDto);
     }
 
     public EstudanteDTO buscarPorId(Long id) {

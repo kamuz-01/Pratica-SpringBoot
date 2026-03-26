@@ -9,6 +9,10 @@ import org.Pratica_SpringBoot.Models.DTOs.ProfessorDTO;
 import org.Pratica_SpringBoot.Models.Entities.Professor;
 import org.Pratica_SpringBoot.Models.Mappers.ProfessorMapper;
 import org.Pratica_SpringBoot.Repositories.ProfessorRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,12 +73,13 @@ class ProfessorServiceTest {
 
     @Test
     void listarTodosDeveConverterEntidades() {
-        when(professorRepository.findAll()).thenReturn(List.of(professor(1L, "987.654.321-00", "hash", null)));
+        when(professorRepository.findAll(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(
+                new PageImpl<>(List.of(professor(1L, "987.654.321-00", "hash", null)), PageRequest.of(0, 10), 1));
 
-        List<ProfessorDTO> resultado = professorService.listarTodos();
+        Page<ProfessorDTO> resultado = professorService.listarTodos(PageRequest.of(0, 10));
 
-        assertEquals(1, resultado.size());
-        assertEquals(1L, resultado.get(0).getId_usuario());
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals(1L, resultado.getContent().get(0).getId_usuario());
     }
 
     @Test

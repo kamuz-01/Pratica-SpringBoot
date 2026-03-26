@@ -8,6 +8,10 @@ import org.Pratica_SpringBoot.Models.DTOs.CursoDTO;
 import org.Pratica_SpringBoot.Models.Entities.Curso;
 import org.Pratica_SpringBoot.Models.Mappers.CursoMapper;
 import org.Pratica_SpringBoot.Repositories.CursoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,15 +58,16 @@ class CursoServiceTest {
 
     @Test
     void listarTodosDeveConverterEntidadesEmDTOs() {
-        when(cursoRepository.findAll()).thenReturn(List.of(
+        when(cursoRepository.findAll(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(
+            new PageImpl<>(List.of(
                 curso("ADS", "Análise e Desenvolvimento de Sistemas", "Curso de tecnologia", 1L),
-                curso("MAT", "Matemática", null, 2L)));
+                curso("MAT", "Matemática", null, 2L)), PageRequest.of(0, 10), 2));
 
-        List<CursoDTO> resultado = cursoService.listarTodos();
+        Page<CursoDTO> resultado = cursoService.listarTodos(PageRequest.of(0, 10));
 
-        assertEquals(2, resultado.size());
-        assertEquals("ADS", resultado.get(0).getCodigo());
-        assertEquals("MAT", resultado.get(1).getCodigo());
+        assertEquals(2, resultado.getTotalElements());
+        assertEquals("ADS", resultado.getContent().get(0).getCodigo());
+        assertEquals("MAT", resultado.getContent().get(1).getCodigo());
     }
 
     @Test

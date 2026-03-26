@@ -21,8 +21,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.SortHandlerMethodArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class DisciplinaControllerTest {
@@ -35,6 +40,7 @@ class DisciplinaControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(new DisciplinaController(disciplinaService))
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver(new SortHandlerMethodArgumentResolver()))
                 .setControllerAdvice(new ManipuladorExcecoesGlobais())
                 .build();
     }
@@ -56,11 +62,12 @@ class DisciplinaControllerTest {
 
     @Test
     void listarTodosDeveRetornar200() throws Exception {
-        when(disciplinaService.listarTodos()).thenReturn(List.of(disciplinaDTO(1L, "Programação", "Base", "PROG101", 80, 2L, 3L)));
+        when(disciplinaService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(
+                List.of(disciplinaDTO(1L, "Programação", "Base", "PROG101", 80, 2L, 3L)), PageRequest.of(0, 10), 1));
 
         mockMvc.perform(get("/api/disciplinas"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id_disciplina").value(1L));
+                .andExpect(jsonPath("$.content[0].id_disciplina").value(1L));
     }
 
     @Test

@@ -23,11 +23,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.SortHandlerMethodArgumentResolver;
 
 @ExtendWith(MockitoExtension.class)
 class EstudanteControllerTest {
@@ -40,6 +45,7 @@ class EstudanteControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(new EstudanteController(estudanteService))
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver(new SortHandlerMethodArgumentResolver()))
                 .setControllerAdvice(new ManipuladorExcecoesGlobais())
                 .build();
     }
@@ -76,11 +82,12 @@ class EstudanteControllerTest {
 
     @Test
     void listarTodosDeveRetornar200() throws Exception {
-        when(estudanteService.listarTodos()).thenReturn(List.of(estudanteDTO(1L, "123.456.789-09", "Ana", "Silva", "20240001")));
+        when(estudanteService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(
+            List.of(estudanteDTO(1L, "123.456.789-09", "Ana", "Silva", "20240001")), PageRequest.of(0, 10), 1));
 
         mockMvc.perform(get("/api/estudantes"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].matricula").value("20240001"));
+            .andExpect(jsonPath("$.content[0].matricula").value("20240001"));
     }
 
     @Test

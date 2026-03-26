@@ -23,6 +23,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.SortHandlerMethodArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -37,6 +42,7 @@ class MatriculaControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(new MatriculaController(matriculaService))
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver(new SortHandlerMethodArgumentResolver()))
                 .setControllerAdvice(new ManipuladorExcecoesGlobais())
                 .build();
     }
@@ -59,11 +65,12 @@ class MatriculaControllerTest {
 
     @Test
     void listarTodosDeveRetornar200() throws Exception {
-        when(matriculaService.listarTodos()).thenReturn(List.of(matriculaDTO(1L, 2L, 1, LocalDate.of(2026, 1, 15), 90.0, 8.5, StatusMatricula.ATIVA)));
+        when(matriculaService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(
+                List.of(matriculaDTO(1L, 2L, 1, LocalDate.of(2026, 1, 15), 90.0, 8.5, StatusMatricula.ATIVA)), PageRequest.of(0, 10), 1));
 
         mockMvc.perform(get("/api/matriculas"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].idEstudante").value(1L));
+                .andExpect(jsonPath("$.content[0].idEstudante").value(1L));
     }
 
     @Test

@@ -1,6 +1,5 @@
 package org.Pratica_SpringBoot.Services;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.Pratica_SpringBoot.GerenciamentoErros.ManipuladorExcecoesGlobais.CpfDuplicadoException;
@@ -8,6 +7,8 @@ import org.Pratica_SpringBoot.Models.DTOs.ProfessorDTO;
 import org.Pratica_SpringBoot.Models.Entities.Professor;
 import org.Pratica_SpringBoot.Models.Mappers.ProfessorMapper;
 import org.Pratica_SpringBoot.Repositories.ProfessorRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,8 +52,8 @@ public class ProfessorService {
         return professorMapper.toDto(salvo);
     }
 
-    public List<ProfessorDTO> listarTodos() {
-        return professorRepository.findAll().stream().map(professorMapper::toDto).toList();
+    public Page<ProfessorDTO> listarTodos(Pageable pageable) {
+        return professorRepository.findAll(pageable).map(professorMapper::toDto);
     }
 
     public ProfessorDTO buscarPorId(Long id) {

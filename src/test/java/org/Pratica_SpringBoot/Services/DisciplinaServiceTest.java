@@ -12,6 +12,10 @@ import org.Pratica_SpringBoot.Models.Mappers.DisciplinaMapper;
 import org.Pratica_SpringBoot.Repositories.CursoRepository;
 import org.Pratica_SpringBoot.Repositories.DisciplinaRepository;
 import org.Pratica_SpringBoot.Repositories.ProfessorRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,12 +79,13 @@ class DisciplinaServiceTest {
     @Test
     void listarTodosDeveConverterEntidades() {
         Disciplina disciplina = disciplina(10L, "Programação", 1L, 2L);
-        when(disciplinaRepository.findAll()).thenReturn(List.of(disciplina));
+        when(disciplinaRepository.findAll(org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(
+                new PageImpl<>(List.of(disciplina), PageRequest.of(0, 10), 1));
 
-        List<DisciplinaDTO> resultado = disciplinaService.listarTodos();
+        Page<DisciplinaDTO> resultado = disciplinaService.listarTodos(PageRequest.of(0, 10));
 
-        assertEquals(1, resultado.size());
-        assertEquals(10L, resultado.get(0).getId_disciplina());
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals(10L, resultado.getContent().get(0).getId_disciplina());
     }
 
     @Test

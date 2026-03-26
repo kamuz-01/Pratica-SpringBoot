@@ -11,6 +11,15 @@ import org.springframework.mock.web.MockPart;
 class EstudanteControllerIntegrationTest extends ControllersIntegrationSupport {
 
     @Test
+    void listarDeveRetornar200() throws Exception {
+        stubEstudanteListarPadrao();
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/estudantes"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].matricula").value("20240001"));
+    }
+
+    @Test
     void criarComImagemDeveRetornar201() throws Exception {
         stubEstudanteCriarImagem();
 

@@ -23,11 +23,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.SortHandlerMethodArgumentResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class ProfessorControllerTest {
@@ -40,6 +45,7 @@ class ProfessorControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(new ProfessorController(professorService))
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver(new SortHandlerMethodArgumentResolver()))
                 .setControllerAdvice(new ManipuladorExcecoesGlobais())
                 .build();
     }
@@ -76,11 +82,12 @@ class ProfessorControllerTest {
 
     @Test
     void listarTodosDeveRetornar200() throws Exception {
-        when(professorService.listarTodos()).thenReturn(List.of(professorDTO(1L, "987.654.321-00", "Bruno", "Lima", "Matemática")));
+        when(professorService.listarTodos(any(Pageable.class))).thenReturn(new PageImpl<>(
+                List.of(professorDTO(1L, "987.654.321-00", "Bruno", "Lima", "Matemática")), PageRequest.of(0, 10), 1));
 
         mockMvc.perform(get("/api/professores"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].especialidade").value("Matemática"));
+                .andExpect(jsonPath("$.content[0].especialidade").value("Matemática"));
     }
 
     @Test

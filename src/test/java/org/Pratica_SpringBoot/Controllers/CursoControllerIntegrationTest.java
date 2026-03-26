@@ -16,7 +16,7 @@ class CursoControllerIntegrationTest extends ControllersIntegrationSupport {
 
         mockMvc.perform(get("/api/cursos"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].codigo").value("ADS"));
+                .andExpect(jsonPath("$.content[0].codigo").value("ADS"));
     }
 
     @Test

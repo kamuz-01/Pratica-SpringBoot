@@ -1,9 +1,11 @@
 package org.Pratica_SpringBoot.Controllers;
 
-import java.util.List;
-
 import org.Pratica_SpringBoot.Models.DTOs.ProfessorDTO;
 import org.Pratica_SpringBoot.Services.ProfessorService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,8 +46,9 @@ public class ProfessorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProfessorDTO>> listarTodos() {
-        return ResponseEntity.ok(professorService.listarTodos());
+    public ResponseEntity<Page<ProfessorDTO>> listarTodos(
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseEntity.ok(professorService.listarTodos(pageable));
     }
 
     @GetMapping("/{id}")

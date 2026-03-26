@@ -1,6 +1,7 @@
 package org.Pratica_SpringBoot.Controllers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -8,6 +9,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockPart;
 
 class ProfessorControllerIntegrationTest extends ControllersIntegrationSupport {
+
+    @Test
+    void listarDeveRetornar200() throws Exception {
+        stubProfessorListarPadrao();
+
+        mockMvc.perform(get("/api/professores"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].especialidade").value("Matemática"));
+    }
 
     @Test
     void criarComImagemDeveRetornar201() throws Exception {

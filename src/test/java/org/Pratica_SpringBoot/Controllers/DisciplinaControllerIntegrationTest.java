@@ -10,10 +10,11 @@ class DisciplinaControllerIntegrationTest extends ControllersIntegrationSupport 
 
     @Test
     void listarDeveRetornar200() throws Exception {
-        stubDisciplinaListarVazio();
+        stubDisciplinaListarPadrao();
 
         mockMvc.perform(get("/api/disciplinas"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+            .andExpect(jsonPath("$.content").isArray())
+            .andExpect(jsonPath("$.content[0].nome").value("Programação"));
     }
 }

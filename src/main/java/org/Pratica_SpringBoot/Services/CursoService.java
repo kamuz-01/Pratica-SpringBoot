@@ -1,12 +1,13 @@
 package org.Pratica_SpringBoot.Services;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.Pratica_SpringBoot.Models.DTOs.CursoDTO;
 import org.Pratica_SpringBoot.Models.Entities.Curso;
 import org.Pratica_SpringBoot.Models.Mappers.CursoMapper;
 import org.Pratica_SpringBoot.Repositories.CursoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +32,8 @@ public class CursoService {
         return cursoMapper.toDto(cursoRepository.save(curso));
     }
 
-    public List<CursoDTO> listarTodos() {
-        return cursoRepository.findAll().stream().map(cursoMapper::toDto).toList();
+    public Page<CursoDTO> listarTodos(Pageable pageable) {
+        return cursoRepository.findAll(pageable).map(cursoMapper::toDto);
     }
 
     public CursoDTO buscarPorId(Long id) {

@@ -121,12 +121,15 @@ class EstudanteServiceTest {
 
     @Test
     void listarTodosDeveConverterEntidades() {
-        when(estudanteRepository.findAll()).thenReturn(List.of(estudante(1L, "123.456.789-09", "hash", null)));
+        when(estudanteRepository.findAll(org.mockito.ArgumentMatchers.any(org.springframework.data.domain.Pageable.class))).thenReturn(
+            new org.springframework.data.domain.PageImpl<>(List.of(estudante(1L, "123.456.789-09", "hash", null)),
+                org.springframework.data.domain.PageRequest.of(0, 10), 1));
 
-        List<EstudanteDTO> resultado = estudanteService.listarTodos();
+        org.springframework.data.domain.Page<EstudanteDTO> resultado = estudanteService.listarTodos(
+            org.springframework.data.domain.PageRequest.of(0, 10));
 
-        assertEquals(1, resultado.size());
-        assertEquals(1L, resultado.get(0).getId_usuario());
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals(1L, resultado.getContent().get(0).getId_usuario());
     }
 
     @Test

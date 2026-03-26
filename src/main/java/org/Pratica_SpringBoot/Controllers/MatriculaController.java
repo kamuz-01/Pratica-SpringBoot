@@ -1,9 +1,11 @@
 package org.Pratica_SpringBoot.Controllers;
 
-import java.util.List;
-
 import org.Pratica_SpringBoot.Models.DTOs.MatriculaDTO;
 import org.Pratica_SpringBoot.Services.MatriculaService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -35,8 +37,9 @@ public class MatriculaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MatriculaDTO>> listarTodos() {
-        return ResponseEntity.ok(matriculaService.listarTodos());
+    public ResponseEntity<Page<MatriculaDTO>> listarTodos(
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseEntity.ok(matriculaService.listarTodos(pageable));
     }
 
     @GetMapping("/{id}")
