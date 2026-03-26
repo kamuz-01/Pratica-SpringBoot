@@ -13,16 +13,16 @@ public interface CursoMapper {
     @Mapping(target = "codigo", source = "codigoCurso")
     @Mapping(target = "nome", source = "nomeCurso")
     @Mapping(target = "descricao", source = "descricaoCurso")
-    @Mapping(target = "id_curso", source = "id")
+    @Mapping(target = "id_curso", source = "idCurso")
     CursoDTO toDto(Curso curso);
 
-    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "idCurso", ignore = true)
     @Mapping(target = "codigoCurso", source = "codigo")
     @Mapping(target = "nomeCurso", source = "nome")
     @Mapping(target = "descricaoCurso", source = "descricao")
     Curso toEntity(CursoDTO dto);
 
-    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "idCurso", ignore = true)
     @Mapping(target = "codigoCurso", source = "codigo")
     @Mapping(target = "nomeCurso", source = "nome")
     @Mapping(target = "descricaoCurso", source = "descricao")

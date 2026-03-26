@@ -29,14 +29,6 @@ public class Curso {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long idCurso;
 
-	public Long getId() {
-		return idCurso;
-	}
-
-	public void setId(Long id) {
-		this.idCurso = id;
-	}
-
 	@Column(name = "codigo_curso", nullable = false, unique = true, length = 20)
 	@NotBlank(message = "O código do curso é obrigatório")
 	@Size(max = 20, message = "O código do curso deve ter no máximo 20 caracteres")

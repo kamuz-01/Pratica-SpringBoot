@@ -118,7 +118,7 @@ class DisciplinaServiceTest {
 
     private Curso curso(Long id) {
         Curso curso = new Curso();
-        curso.setId(id);
+        curso.setIdCurso(id);
         return curso;
     }
 

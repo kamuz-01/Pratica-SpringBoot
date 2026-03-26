@@ -127,7 +127,7 @@ class CursoServiceTest {
 
     private Curso curso(String codigo, String nome, String descricao, Long id) {
         Curso curso = new Curso();
-        curso.setId(id);
+        curso.setIdCurso(id);
         curso.setCodigoCurso(codigo);
         curso.setNomeCurso(nome);
         curso.setDescricaoCurso(descricao);

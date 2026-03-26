@@ -14,7 +14,7 @@ public interface DisciplinaMapper {
     @Mapping(target = "descricao", source = "descricaoDisciplina")
     @Mapping(target = "codigo", source = "codigoDisciplina")
     @Mapping(target = "id_disciplina", source = "id")
-    @Mapping(target = "id_curso", source = "curso.id")
+    @Mapping(target = "id_curso", source = "curso.idCurso")
     @Mapping(target = "id_professor", source = "professor.id")
     DisciplinaDTO toDto(Disciplina disciplina);
 
