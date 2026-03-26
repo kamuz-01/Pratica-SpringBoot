@@ -11,6 +11,7 @@ import org.mapstruct.ReportingPolicy;
 public interface EstudanteMapper {
 
     @Mapping(target = "id_usuario", source = "id")
+    @Mapping(target = "senha", ignore = true)
     EstudanteDTO toDto(Estudante estudante);
 
     @Mapping(target = "id", ignore = true)

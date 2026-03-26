@@ -1,17 +1,5 @@
 package org.Pratica_SpringBoot.Controllers;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,18 +9,27 @@ import org.Pratica_SpringBoot.Services.EstudanteService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.data.web.SortHandlerMethodArgumentResolver;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @ExtendWith(MockitoExtension.class)
 class EstudanteControllerTest {
@@ -103,14 +100,19 @@ class EstudanteControllerTest {
 
     @Test
     void atualizarDeveRetornar200() throws Exception {
-        EstudanteController controller = new EstudanteController(estudanteService);
-        EstudanteDTO request = estudanteDTO(1L, "123.456.789-10", "Ana Maria", "Silva", "20240002");
+        EstudanteDTO request = estudanteDTO(1L, "123.456.789-09", "Ana Maria", "Silva", "20240002");
+
         when(estudanteService.atualizar(eq(1L), any(EstudanteDTO.class))).thenReturn(request);
 
-        ResponseEntity<EstudanteDTO> response = controller.atualizar(1L, request);
-
-        org.junit.jupiter.api.Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        org.junit.jupiter.api.Assertions.assertEquals("123.456.789-10", response.getBody().getCpf());
+        mockMvc.perform(put("/api/estudantes/1")
+                        .contentType("application/json")
+                        .content("""
+                                {"nome":"Ana Maria","sobrenome":"Silva","cpf":"123.456.789-09","dataNascimento":"2000-01-01","cidade":"São Paulo","estado":"SP","paisOrigem":"Brasil","telefone":"11999999999","email":"ana@email.com","senha":"senhaSegura1","matricula":"20240002"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id_usuario").value(1L))
+                .andExpect(jsonPath("$.cpf").value("123.456.789-09"))
+                .andExpect(jsonPath("$.matricula").value("20240002"));
     }
 
     @Test

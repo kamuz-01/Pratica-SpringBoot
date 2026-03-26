@@ -1,17 +1,5 @@
 package org.Pratica_SpringBoot.Controllers;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,18 +9,27 @@ import org.Pratica_SpringBoot.Services.ProfessorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.data.web.SortHandlerMethodArgumentResolver;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.SortHandlerMethodArgumentResolver;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @ExtendWith(MockitoExtension.class)
 class ProfessorControllerTest {
@@ -103,14 +100,19 @@ class ProfessorControllerTest {
 
     @Test
     void atualizarDeveRetornar200() throws Exception {
-        ProfessorController controller = new ProfessorController(professorService);
-        ProfessorDTO request = professorDTO(1L, "987.654.321-01", "Bruno Lima", "Lima", "Estatística");
+        ProfessorDTO request = professorDTO(1L, "987.654.321-00", "Bruno Lima", "Lima", "Estatística");
+
         when(professorService.atualizar(eq(1L), any(ProfessorDTO.class))).thenReturn(request);
 
-        ResponseEntity<ProfessorDTO> response = controller.atualizar(1L, request);
-
-        org.junit.jupiter.api.Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        org.junit.jupiter.api.Assertions.assertEquals("Estatística", response.getBody().getEspecialidade());
+        mockMvc.perform(put("/api/professores/1")
+                        .contentType("application/json")
+                        .content("""
+                                {"nome":"Bruno Lima","sobrenome":"Lima","cpf":"987.654.321-00","dataNascimento":"1980-05-20","cidade":"Recife","estado":"PE","paisOrigem":"Brasil","telefone":"81999999999","email":"bruno@email.com","senha":"senhaSegura1","especialidade":"Estatística"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id_usuario").value(1L))
+                .andExpect(jsonPath("$.cpf").value("987.654.321-00"))
+                .andExpect(jsonPath("$.especialidade").value("Estatística"));
     }
 
     @Test
