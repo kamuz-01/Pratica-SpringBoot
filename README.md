@@ -1,11 +1,13 @@
 # 🎓 Sistema de Gestão Escolar — API REST
 
-> API REST desenvolvida com **Spring Boot 3** para gerenciar um mini-sistema escolar, contemplando estudantes, professores, cursos, disciplinas e matrículas.
+> API REST desenvolvida com **Spring Boot 3.5** para simular e gerenciar um mini-sistema escolar com estudantes, professores, cursos, disciplinas e matrículas.
 
 <br>
 
 ![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.13-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Spring Data JPA](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
+![MapStruct](https://img.shields.io/badge/MapStruct-1.6.3-8A2BE2?style=for-the-badge)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
 ![Swagger](https://img.shields.io/badge/Swagger-UI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
@@ -48,75 +50,81 @@
 
 ## 💡 Sobre o Projeto
 
-Este projeto é uma **API REST** construída como prática de desenvolvimento com **Spring Boot**, **Git** e **GitHub**. O sistema simula o back-end de uma instituição de ensino, permitindo gerenciar o cadastro de pessoas, organização acadêmica e matrículas.
+Este projeto é uma API REST construída como prática de desenvolvimento com **Spring Boot**, **JPA/Hibernate**, **MapStruct**, **Git** e **GitHub**. A proposta é representar o back-end de uma instituição de ensino e exercitar, de forma objetiva, organização em camadas, validação, mapeamento entre objetos e automação de testes.
 
-O projeto explora na prática conceitos como:
+A versão atual do projeto consolida melhorias importantes:
 
-- Relacionamentos **OneToMany** e **ManyToOne** com JPA/Hibernate
-- Herança entre entidades com estratégia `JOINED`
-- Upload e armazenamento de imagens de perfil
-- Criptografia de senhas com PBKDF2 + salt
-- Tratamento global e centralizado de exceções
-- Logging estruturado por arquivo e por nível
-- Documentação automática com SpringDoc/OpenAPI
+- Mapeamento DTO ↔ Entity com **MapStruct**
+- Listagens paginadas e ordenadas com `Page<T>` e `Pageable`
+- Criptografia de senha com **BCryptPasswordEncoder**
+- Tratamento global e padronizado de exceções
+- Upload e armazenamento de imagem de perfil
+- Logging em arquivo com separação entre log geral, erros e acesso HTTP
+- Documentação interativa com **SpringDoc/OpenAPI**
+- Testes unitários e de integração cobrindo services, controllers e o carregamento do contexto
 
 ---
 
 ## 🏗 Arquitetura
 
-O projeto segue o padrão em camadas tradicional do ecossistema Spring:
+O projeto segue um modelo em camadas tradicional do ecossistema Spring:
 
 ```
 Controller  ──►  Service  ──►  Repository  ──►  Database
     │                │
     │         ManipuladorExcecoesGlobais
     │                │
-    └──────  DTOs / Entities
+    └──────  DTOs / Entities / Mappers
 ```
 
 | Camada | Responsabilidade |
 |---|---|
-| **Controller** | Receber requisições HTTP, validar entrada, delegar ao Service |
-| **Service** | Regras de negócio, mapeamento DTO ↔ Entity, orquestração |
-| **Repository** | Acesso ao banco via Spring Data JPA |
-| **DTO** | Contrato da API — o que entra e o que sai |
-| **Entity** | Mapeamento objeto-relacional com JPA |
-| **GerenciamentoErros** | Tratamento centralizado de todas as exceções do sistema |
+| **Controller** | Receber requisições HTTP, validar entrada e delegar ao service |
+| **Service** | Regras de negócio, relacionamentos e orquestração |
+| **Repository** | Acesso ao banco com Spring Data JPA |
+| **DTO** | Contrato da API para entrada e saída |
+| **Entity** | Persistência e relacionamento com JPA/Hibernate |
+| **Mapper** | Conversão entre DTO e entidade com MapStruct |
+| **GerenciamentoErros** | Tratamento centralizado de exceções do sistema |
 
 ---
 
 ## ✨ Funcionalidades
 
 ### 👨‍🎓 Estudantes
-- Cadastro completo com dados pessoais e número de matrícula
-- Upload opcional de foto de perfil (multipart/form-data)
-- Validação de CPF (formato e unicidade)
-- Atualização e remoção
+- Cadastro com dados pessoais, matrícula e senha
+- Upload opcional de foto de perfil em `multipart/form-data`
+- Validação de CPF e unicidade no banco
+- Atualização, busca, listagem paginada e remoção
 
 ### 👨‍🏫 Professores
-- Cadastro com especialidade acadêmica
-- Upload opcional de foto de perfil (multipart/form-data)
-- Validação de CPF (formato e unicidade)
-- Atualização e remoção
+- Cadastro com especialidade acadêmica e senha
+- Upload opcional de foto de perfil em `multipart/form-data`
+- Validação de CPF e unicidade no banco
+- Atualização, busca, listagem paginada e remoção
 
 ### 📚 Cursos
 - Cadastro com código único, nome e descrição
-- Associação com múltiplas disciplinas (OneToMany)
+- Atualização, busca, listagem paginada e remoção
+- Relação com disciplinas via `OneToMany`
 
 ### 📖 Disciplinas
 - Associação obrigatória a um curso e a um professor
-- Controle de carga horária (mínimo 20h, máximo 400h)
 - Código único por disciplina
+- Controle de carga horária com validação de faixa
+- Atualização, busca, listagem paginada e remoção
 
 ### 📝 Matrículas
 - Vínculo entre estudante e disciplina por semestre
-- Controle de frequência (0–100%) e nota final (0–10)
-- Status da matrícula: `ATIVA`, `TRANCADA`, `CANCELADA`, `CONCLUIDA`
-- Unicidade garantida por estudante + disciplina + semestre
+- Controle de frequência, nota final e status da matrícula
+- Unicidade garantida por combinação de estudante, disciplina e semestre
+- Atualização, busca, listagem paginada e remoção
 
 ---
 
 ## 🔌 Endpoints da API
+
+Os endpoints de listagem suportam paginação e ordenação via `page`, `size` e `sort`.
 
 ### Estudantes — `/api/estudantes`
 
@@ -124,7 +132,7 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
 |---|---|---|
 | `POST` | `/api/estudantes` | Cadastrar estudante (JSON) |
 | `POST` | `/api/estudantes` | Cadastrar estudante com foto (multipart) |
-| `GET` | `/api/estudantes` | Listar todos os estudantes |
+| `GET` | `/api/estudantes` | Listar estudantes com paginação |
 | `GET` | `/api/estudantes/{id}` | Buscar estudante por ID |
 | `PUT` | `/api/estudantes/{id}` | Atualizar estudante (JSON) |
 | `PUT` | `/api/estudantes/{id}` | Atualizar estudante com foto (multipart) |
@@ -136,7 +144,7 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
 |---|---|---|
 | `POST` | `/api/professores` | Cadastrar professor (JSON) |
 | `POST` | `/api/professores` | Cadastrar professor com foto (multipart) |
-| `GET` | `/api/professores` | Listar todos os professores |
+| `GET` | `/api/professores` | Listar professores com paginação |
 | `GET` | `/api/professores/{id}` | Buscar professor por ID |
 | `PUT` | `/api/professores/{id}` | Atualizar professor (JSON) |
 | `PUT` | `/api/professores/{id}` | Atualizar professor com foto (multipart) |
@@ -147,7 +155,7 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
 | Método | Rota | Descrição |
 |---|---|---|
 | `POST` | `/api/cursos` | Criar curso |
-| `GET` | `/api/cursos` | Listar todos os cursos |
+| `GET` | `/api/cursos` | Listar cursos com paginação |
 | `GET` | `/api/cursos/{id}` | Buscar curso por ID |
 | `PUT` | `/api/cursos/{id}` | Atualizar curso |
 | `DELETE` | `/api/cursos/{id}` | Remover curso |
@@ -157,7 +165,7 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
 | Método | Rota | Descrição |
 |---|---|---|
 | `POST` | `/api/disciplinas` | Criar disciplina |
-| `GET` | `/api/disciplinas` | Listar todas as disciplinas |
+| `GET` | `/api/disciplinas` | Listar disciplinas com paginação |
 | `GET` | `/api/disciplinas/{id}` | Buscar disciplina por ID |
 | `PUT` | `/api/disciplinas/{id}` | Atualizar disciplina |
 | `DELETE` | `/api/disciplinas/{id}` | Remover disciplina |
@@ -167,7 +175,7 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
 | Método | Rota | Descrição |
 |---|---|---|
 | `POST` | `/api/matriculas` | Criar matrícula |
-| `GET` | `/api/matriculas` | Listar todas as matrículas |
+| `GET` | `/api/matriculas` | Listar matrículas com paginação |
 | `GET` | `/api/matriculas/{id}` | Buscar matrícula por ID |
 | `PUT` | `/api/matriculas/{id}` | Atualizar matrícula |
 | `DELETE` | `/api/matriculas/{id}` | Remover matrícula |
@@ -197,7 +205,7 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
        │    ┌──────────►│ nome         │       └─────────────┘
        │    │           │ codigo       │
   ┌────▼────┴──┐        │ cargaHoraria │
-  │  Estudante │        │ curso (FK)   │
+  │  Estudante │        │ idCurso (FK) │
   │  (Usuario) │        │ professor(FK)│
   │────────────│        └──────┬───────┘
   │ matricula  │               │ N
@@ -221,13 +229,15 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
           └──────────────┘
 ```
 
-**Herança de Usuario:** `InheritanceType.JOINED` — a tabela `usuario` armazena os campos comuns; `estudante` e `professor` possuem tabelas próprias com suas colunas específicas e uma FK para `usuario`.
+**Herança de `Usuario`:** `InheritanceType.JOINED`. A tabela `usuario` concentra os campos comuns e `estudante`/`professor` mantêm os dados específicos.
 
 ---
 
 ## ⚠️ Tratamento de Erros
 
-Todas as exceções são interceptadas e tratadas de forma centralizada pela classe `ManipuladorExcecoesGlobais`, que retorna respostas padronizadas no seguinte formato:
+As exceções da aplicação são tratadas centralmente pela classe `ManipuladorExcecoesGlobais`, que devolve respostas padronizadas no formato `ProblemResponse`.
+
+Exemplo de resposta:
 
 ```json
 {
@@ -242,10 +252,10 @@ Todas as exceções são interceptadas e tratadas de forma centralizada pela cla
 
 | Status | Situação |
 |---|---|
-| `400` | Validação de campos, JSON inválido, parâmetro de URL errado |
+| `400` | Validação de campos, JSON inválido ou parâmetro incompatível |
 | `404` | Recurso ou rota não encontrada |
-| `409` | CPF duplicado, violação de constraint única no banco |
-| `413` | Imagem de perfil acima de 5 MB |
+| `409` | CPF duplicado ou violação de constraint única |
+| `413` | Imagem de perfil acima do limite permitido |
 | `422` | Regra de negócio violada |
 | `500` | Erro interno inesperado |
 
@@ -253,41 +263,51 @@ Todas as exceções são interceptadas e tratadas de forma centralizada pela cla
 
 ## 🔒 Segurança
 
-As senhas **nunca são armazenadas em texto puro**. O sistema utiliza o algoritmo **PBKDF2 com HMAC-SHA256**, com salt aleatório de 16 bytes e 65.536 iterações, garantindo resistência a ataques de força bruta e rainbow tables.
+As senhas não são armazenadas em texto puro. O projeto utiliza **BCryptPasswordEncoder** com strength 10, garantindo hash seguro e resistência a ataques de força bruta.
 
 ```
-senha em texto  ──►  [salt aleatório + PBKDF2/SHA256 x 65536]  ──►  "base64(salt):base64(hash)"
+senha em texto  ──►  BCrypt (strength 10)  ──►  hash armazenado
 ```
 
 ---
 
 ## 📊 Logging
 
-O sistema possui três arquivos de log com rotação diária:
+O sistema registra logs em arquivo e em console com rotação diária.
 
 | Arquivo | Conteúdo |
 |---|---|
-| `logs/app.log` | Log geral da aplicação (INFO+) |
-| `logs/error.log` | Apenas erros (ERROR) |
-| `logs/api-access.log` | Todas as requisições HTTP com IP, método, rota, status e tempo de resposta |
+| `logs/app.log` | Log geral da aplicação |
+| `logs/error.log` | Apenas erros |
+| `logs/api-access.log` | Requisições HTTP com método, rota, IP, status e tempo de resposta |
 
 Exemplo de linha no `api-access.log`:
-```
+
+```text
 2026-03-24 14:35:10 IP=127.0.0.1 METHOD=POST URI=/api/estudantes STATUS=201 TIME=87ms
 ```
 
-O interceptor de acesso é registrado via `WebMvcConfigurer` e registra cada requisição automaticamente ao término, sem impacto nas respostas da API.
+A aplicação usa `logback-spring.xml` para separar o log geral, os erros e o acesso HTTP, com retenção por 30 dias.
 
 ---
 
 ## 🧪 Testes Unitários
 
-O projeto possui testes automatizados cobrindo as principais camadas da aplicação:
+A base de testes cobre a aplicação em dois níveis:
 
-- **Services**: validação de regras de negócio, persistência e exceções esperadas
-- **Controllers**: validação das rotas, status HTTP, retorno de JSON e tratamento de erros
+- **Testes unitários de service** com **JUnit 5** e **Mockito**
+- **Testes de controller** com **MockMvc**
+- **Testes de integração** com `@SpringBootTest`, `@AutoConfigureMockMvc` e banco **H2** em memória
 
-Os testes foram escritos com **JUnit 5**, **Mockito** e **MockMvc**. Para executar tudo localmente:
+As principais garantias exercitadas pelos testes são:
+
+- validação de regras de negócio
+- criação, atualização, listagem e exclusão
+- tratamento de erros e status HTTP
+- carregamento do contexto completo da aplicação
+- paginação e ordenação nas listagens
+
+Para executar localmente:
 
 ```bash
 # Linux / macOS
@@ -312,20 +332,16 @@ Os testes foram escritos com **JUnit 5**, **Mockito** e **MockMvc**. Para execut
 Crie o banco de dados no MySQL:
 
 ```sql
-CREATE DATABASE pratica_springboot_one_to_one;
+CREATE DATABASE pratica_springboot;
 ```
+
+Depois, ajuste as credenciais em `src/main/resources/application.properties` conforme o seu ambiente local.
 
 ### Variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto (já ignorado pelo `.gitignore`):
+O projeto pode ser adaptado para variáveis de ambiente, mas a configuração padrão atual está em `application.properties`.
 
-```env
-DB_URL=jdbc:mysql://localhost:3306/pratica_springboot_one_to_one
-DB_USERNAME=root
-DB_PASSWORD=sua_senha
-```
-
-> ⚠️ Nunca comite credenciais no `application.properties`. Use variáveis de ambiente em todos os ambientes.
+Se preferir externalizar os dados sensíveis, defina as propriedades equivalentes no seu ambiente de execução e mantenha o banco apontando para a mesma URL.
 
 ### Executando
 
@@ -334,8 +350,14 @@ DB_PASSWORD=sua_senha
 git clone https://github.com/seu-usuario/Pratica_SpringBoot.git
 cd Pratica_SpringBoot
 
-# Execute com Maven Wrapper
+# Execute a aplicação
 ./mvnw spring-boot:run
+```
+
+No Windows, use:
+
+```bash
+.\mvnw.cmd spring-boot:run
 ```
 
 A aplicação sobe na porta `8080` por padrão.
@@ -344,13 +366,13 @@ A aplicação sobe na porta `8080` por padrão.
 
 ## 📖 Documentação Swagger
 
-Com a aplicação rodando, acesse a documentação interativa:
+Com a aplicação em execução, acesse:
 
-```
+```text
 http://localhost:8080/swagger-ui/index.html
 ```
 
-A documentação lista todos os endpoints, schemas de entrada e saída, e permite testar as requisições diretamente pelo navegador.
+A documentação exibe os endpoints, schemas, contratos de entrada e saída e permite testar as rotas diretamente pelo navegador.
 
 ---
 
@@ -360,10 +382,9 @@ A documentação lista todos os endpoints, schemas de entrada e saída, e permit
 src/main/java/org/Pratica_SpringBoot/
 │
 ├── Config/
-│   ├── ConfigSwagger/        # Configuração do OpenAPI/Swagger
-│   └── ConfigWebApp/         # Registro de interceptors (WebMvcConfigurer)
+│   └── ConfigSwagger/            # Configuração do OpenAPI/Swagger
 │
-├── Controllers/              # Camada REST — recebe e responde requisições HTTP
+├── Controllers/                  # Camada REST
 │   ├── CursoController
 │   ├── DisciplinaController
 │   ├── EstudanteController
@@ -371,61 +392,66 @@ src/main/java/org/Pratica_SpringBoot/
 │   └── ProfessorController
 │
 ├── Docs/
-│   └── ProblemResponse       # Schema padronizado de resposta de erro
+│   └── ProblemResponse           # Estrutura padronizada de erro
 │
-├── GerenciamentoErros/       # Tratamento centralizado de exceções
-│   ├── ManipuladorExcecoesGlobais   # @RestControllerAdvice + CpfDuplicadoException (inner class)
-│   └── RecursosNaoEncontradosException
+├── GerenciamentoErros/           # Tratamento centralizado de exceções
+│   └── ManipuladorExcecoesGlobais
 │
 ├── Loggings/
-│   └── InterceptorLoggingApi # Interceptor HTTP para log de acesso
+│   └── InterceptorLoggingApi     # Interceptor de acesso HTTP
 │
 ├── Models/
-│   ├── DTOs/                 # Objetos de transferência de dados (contrato da API)
-│   │   ├── UsuarioDTO (abstrato)
-│   │   ├── EstudanteDTO
-│   │   ├── ProfessorDTO
+│   ├── DTOs/                     # Contratos de entrada/saída
 │   │   ├── CursoDTO
 │   │   ├── DisciplinaDTO
-│   │   └── MatriculaDTO
-│   ├── Entities/             # Entidades JPA (mapeamento objeto-relacional)
-│   │   ├── Usuario (abstrato, JOINED)
-│   │   ├── Estudante
-│   │   ├── Professor
+│   │   ├── EstudanteDTO
+│   │   ├── MatriculaDTO
+│   │   ├── ProfessorDTO
+│   │   └── UsuarioDTO
+│   ├── Entities/                 # Entidades JPA
 │   │   ├── Curso
 │   │   ├── Disciplina
-│   │   └── Matricula
-│   └── Enums/
-│       └── StatusMatricula   # ATIVA | TRANCADA | CANCELADA | CONCLUIDA
+│   │   ├── Estudante
+│   │   ├── Matricula
+│   │   ├── Professor
+│   │   └── Usuario
+│   ├── Enums/
+│   │   └── StatusMatricula
+│   └── Mappers/                 # Mapeamento DTO ↔ Entity com MapStruct
+│       ├── CursoMapper
+│       ├── DisciplinaMapper
+│       ├── EstudanteMapper
+│       ├── MatriculaMapper
+│       └── ProfessorMapper
 │
-├── Repositories/             # Interfaces Spring Data JPA
+├── Repositories/                 # Spring Data JPA
 │   ├── CursoRepository
 │   ├── DisciplinaRepository
 │   ├── EstudanteRepository
 │   ├── MatriculaRepository
 │   └── ProfessorRepository
 │
-└── Services/                 # Regras de negócio e orquestração
+└── Services/                     # Regras de negócio
     ├── CursoService
     ├── DisciplinaService
     ├── EstudanteService
     ├── MatriculaService
     ├── ProfessorService
-    ├── SenhaCriptografiaService      # PBKDF2 + salt
-    └── UsuarioImagemStorageService   # Upload e persistência de imagens
+    ├── SenhaCriptografiaService
+    └── UsuarioImagemStorageService
 ```
 
 ---
 
 ## 🤝 Contribuindo
 
-Contribuições são bem-vindas! Consulte o arquivo [CONTRIBUTING.md](CONTRIBUTING.md) para entender o fluxo sugerido, padrões de código e boas práticas adotadas no projeto.
+Contribuições são bem-vindas. Consulte o arquivo [CONTRIBUTING.md](CONTRIBUTING.md) para seguir o fluxo sugerido, os padrões de código e as boas práticas do projeto.
 
 ---
 
 <div align="center">
 
-Desenvolvido como projeto de prática com **Spring Boot**, **JPA** e **Git**
+Desenvolvido como projeto de prática com **Spring Boot**, **JPA/Hibernate**, **MapStruct**, **BCrypt** e **Git**
 
 **[⬆ Voltar ao topo](#-sistema-de-gestão-escolar--api-rest)**
 
