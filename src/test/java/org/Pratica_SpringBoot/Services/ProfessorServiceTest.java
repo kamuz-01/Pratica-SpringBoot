@@ -1,11 +1,5 @@
 package org.Pratica_SpringBoot.Services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -13,12 +7,19 @@ import java.util.Optional;
 import org.Pratica_SpringBoot.GerenciamentoErros.ManipuladorExcecoesGlobais.CpfDuplicadoException;
 import org.Pratica_SpringBoot.Models.DTOs.ProfessorDTO;
 import org.Pratica_SpringBoot.Models.Entities.Professor;
+import org.Pratica_SpringBoot.Models.Mappers.ProfessorMapper;
 import org.Pratica_SpringBoot.Repositories.ProfessorRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
+import static org.mockito.ArgumentMatchers.argThat;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,8 +34,13 @@ class ProfessorServiceTest {
     @Mock
     private UsuarioImagemStorageService usuarioImagemStorageService;
 
-    @InjectMocks
     private ProfessorService professorService;
+
+    @BeforeEach
+    void setUp() {
+        professorService = new ProfessorService(professorRepository, Mappers.getMapper(ProfessorMapper.class),
+                senhaCriptografiaService, usuarioImagemStorageService);
+    }
 
     @Test
     void criarDeveSalvarProfessor() {

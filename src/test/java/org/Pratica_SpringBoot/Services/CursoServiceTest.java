@@ -1,23 +1,24 @@
 package org.Pratica_SpringBoot.Services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.Pratica_SpringBoot.Models.DTOs.CursoDTO;
 import org.Pratica_SpringBoot.Models.Entities.Curso;
+import org.Pratica_SpringBoot.Models.Mappers.CursoMapper;
 import org.Pratica_SpringBoot.Repositories.CursoRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
+import static org.mockito.ArgumentMatchers.argThat;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,8 +27,12 @@ class CursoServiceTest {
     @Mock
     private CursoRepository cursoRepository;
 
-    @InjectMocks
     private CursoService cursoService;
+
+    @BeforeEach
+    void setUp() {
+        cursoService = new CursoService(cursoRepository, Mappers.getMapper(CursoMapper.class));
+    }
 
     @Test
     void criarDeveSalvarCursoERetornarDTO() {

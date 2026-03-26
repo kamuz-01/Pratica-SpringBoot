@@ -1,11 +1,5 @@
 package org.Pratica_SpringBoot.Services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -16,14 +10,21 @@ import org.Pratica_SpringBoot.Models.Entities.Disciplina;
 import org.Pratica_SpringBoot.Models.Entities.Estudante;
 import org.Pratica_SpringBoot.Models.Entities.Matricula;
 import org.Pratica_SpringBoot.Models.Enums.StatusMatricula;
+import org.Pratica_SpringBoot.Models.Mappers.MatriculaMapper;
 import org.Pratica_SpringBoot.Repositories.DisciplinaRepository;
 import org.Pratica_SpringBoot.Repositories.EstudanteRepository;
 import org.Pratica_SpringBoot.Repositories.MatriculaRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
+import static org.mockito.ArgumentMatchers.argThat;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,8 +39,13 @@ class MatriculaServiceTest {
     @Mock
     private DisciplinaRepository disciplinaRepository;
 
-    @InjectMocks
     private MatriculaService matriculaService;
+
+    @BeforeEach
+    void setUp() {
+        matriculaService = new MatriculaService(matriculaRepository, Mappers.getMapper(MatriculaMapper.class),
+                estudanteRepository, disciplinaRepository);
+    }
 
     @Test
     void criarDeveSalvarMatricula() {

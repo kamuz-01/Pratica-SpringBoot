@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import org.Pratica_SpringBoot.GerenciamentoErros.ManipuladorExcecoesGlobais.CpfDuplicadoException;
 import org.Pratica_SpringBoot.Models.DTOs.ProfessorDTO;
 import org.Pratica_SpringBoot.Models.Entities.Professor;
+import org.Pratica_SpringBoot.Models.Mappers.ProfessorMapper;
 import org.Pratica_SpringBoot.Repositories.ProfessorRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +17,15 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
+    private final ProfessorMapper professorMapper;
     private final SenhaCriptografiaService senhaCriptografiaService;
     private final UsuarioImagemStorageService usuarioImagemStorageService;
 
-    public ProfessorService(ProfessorRepository professorRepository, SenhaCriptografiaService senhaCriptografiaService,
+    public ProfessorService(ProfessorRepository professorRepository, ProfessorMapper professorMapper,
+            SenhaCriptografiaService senhaCriptografiaService,
             UsuarioImagemStorageService usuarioImagemStorageService) {
         this.professorRepository = professorRepository;
+        this.professorMapper = professorMapper;
         this.senhaCriptografiaService = senhaCriptografiaService;
         this.usuarioImagemStorageService = usuarioImagemStorageService;
     }
@@ -32,7 +36,7 @@ public class ProfessorService {
 
     public ProfessorDTO criar(ProfessorDTO dto, MultipartFile imagemPerfil) {
         validarCpfDuplicado(dto.getCpf(), null);
-        Professor professor = toEntity(dto);
+        Professor professor = professorMapper.toEntity(dto);
         professor.setSenha(senhaCriptografiaService.criptografar(dto.getSenha()));
         professor.setImagemPerfil(null);
 
@@ -44,15 +48,15 @@ public class ProfessorService {
             salvo = professorRepository.save(salvo);
         }
 
-        return toDTO(salvo);
+        return professorMapper.toDto(salvo);
     }
 
     public List<ProfessorDTO> listarTodos() {
-        return professorRepository.findAll().stream().map(this::toDTO).toList();
+        return professorRepository.findAll().stream().map(professorMapper::toDto).toList();
     }
 
     public ProfessorDTO buscarPorId(Long id) {
-        return toDTO(buscarEntidadePorId(id));
+        return professorMapper.toDto(buscarEntidadePorId(id));
     }
 
     public ProfessorDTO atualizar(Long id, ProfessorDTO dto) {
@@ -62,15 +66,15 @@ public class ProfessorService {
     public ProfessorDTO atualizar(Long id, ProfessorDTO dto, MultipartFile imagemPerfil) {
         Professor professor = buscarEntidadePorId(id);
         validarCpfDuplicado(dto.getCpf(), id);
-        atualizarEntidade(professor, dto);
+        professorMapper.updateEntityFromDto(dto, professor);
         professor.setSenha(senhaCriptografiaService.criptografar(dto.getSenha()));
 
-        String caminhoImagem = usuarioImagemStorageService.salvarImagemPerfil(professor.getId(), imagemPerfil);
+        String caminhoImagem = usuarioImagemStorageService.salvarImagemPerfil(id, imagemPerfil);
         if (caminhoImagem != null) {
             professor.setImagemPerfil(caminhoImagem);
         }
 
-        return toDTO(professorRepository.save(professor));
+        return professorMapper.toDto(professorRepository.save(professor));
     }
 
     public void deletar(Long id) {
@@ -82,53 +86,11 @@ public class ProfessorService {
                 .orElseThrow(() -> new NoSuchElementException("Professor não encontrado: " + id));
     }
 
-    private Professor toEntity(ProfessorDTO dto) {
-        if (dto == null) {
-            throw new IllegalArgumentException("DTO de professor não pode ser nulo");
-        }
-
-        Professor professor = new Professor();
-        atualizarEntidade(professor, dto);
-        return professor;
-    }
-
-    private void atualizarEntidade(Professor professor, ProfessorDTO dto) {
-        professor.setId(dto.getId_usuario());
-        professor.setNome(dto.getNome());
-        professor.setSobrenome(dto.getSobrenome());
-        professor.setCpf(dto.getCpf());
-        professor.setDataNascimento(dto.getDataNascimento());
-        professor.setCidade(dto.getCidade());
-        professor.setEstado(dto.getEstado());
-        professor.setPaisOrigem(dto.getPaisOrigem());
-        professor.setTelefone(dto.getTelefone());
-        professor.setEmail(dto.getEmail());
-        professor.setEspecialidade(dto.getEspecialidade());
-    }
-
     private void validarCpfDuplicado(String cpf, Long idAtual) {
         professorRepository.findByCpf(cpf)
                 .filter(professor -> idAtual == null || !professor.getId().equals(idAtual))
                 .ifPresent(professor -> {
                     throw new CpfDuplicadoException("Já existe um professor cadastrado com este CPF");
                 });
-    }
-
-    private ProfessorDTO toDTO(Professor professor) {
-        ProfessorDTO dto = new ProfessorDTO();
-        dto.setId_usuario(professor.getId());
-        dto.setNome(professor.getNome());
-        dto.setSobrenome(professor.getSobrenome());
-        dto.setCpf(professor.getCpf());
-        dto.setDataNascimento(professor.getDataNascimento());
-        dto.setCidade(professor.getCidade());
-        dto.setEstado(professor.getEstado());
-        dto.setPaisOrigem(professor.getPaisOrigem());
-        dto.setTelefone(professor.getTelefone());
-        dto.setEmail(professor.getEmail());
-        dto.setSenha(professor.getSenha());
-        dto.setImagemPerfil(professor.getImagemPerfil());
-        dto.setEspecialidade(professor.getEspecialidade());
-        return dto;
     }
 }
