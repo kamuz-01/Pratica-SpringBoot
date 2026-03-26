@@ -9,5 +9,4 @@ class PraticaSpringBootApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
