@@ -8,6 +8,7 @@ import org.Pratica_SpringBoot.Models.DTOs.EstudanteDTO;
 import org.Pratica_SpringBoot.Models.Entities.Estudante;
 import org.Pratica_SpringBoot.Models.Mappers.EstudanteMapper;
 import org.Pratica_SpringBoot.Repositories.EstudanteRepository;
+import org.Pratica_SpringBoot.Repositories.MatriculaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,14 +23,17 @@ public class EstudanteService {
     private final EstudanteMapper estudanteMapper;
     private final SenhaCriptografiaService senhaCriptografiaService;
     private final UsuarioImagemStorageService usuarioImagemStorageService;
+    private final MatriculaRepository matriculaRepository;
 
     public EstudanteService(EstudanteRepository estudanteRepository, EstudanteMapper estudanteMapper,
             SenhaCriptografiaService senhaCriptografiaService,
-            UsuarioImagemStorageService usuarioImagemStorageService) {
+            UsuarioImagemStorageService usuarioImagemStorageService,
+            MatriculaRepository matriculaRepository) {
         this.estudanteRepository = estudanteRepository;
         this.estudanteMapper = estudanteMapper;
         this.senhaCriptografiaService = senhaCriptografiaService;
         this.usuarioImagemStorageService = usuarioImagemStorageService;
+        this.matriculaRepository = matriculaRepository;
     }
 
     public EstudanteDTO criar(EstudanteDTO dto) {
@@ -81,6 +85,10 @@ public class EstudanteService {
 
     public void deletar(Long id) {
         Estudante estudante = buscarEntidadePorId(id);
+        if (matriculaRepository.existsByEstudante_Id(id)) {
+            throw new IllegalStateException("Este estudante não pode ser excluído pois possui matrículas vinculadas.");
+        }
+
         estudanteRepository.delete(Objects.requireNonNull(estudante));
     }
 

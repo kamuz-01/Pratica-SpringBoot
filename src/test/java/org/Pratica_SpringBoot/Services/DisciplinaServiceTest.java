@@ -11,6 +11,7 @@ import org.Pratica_SpringBoot.Models.Entities.Professor;
 import org.Pratica_SpringBoot.Models.Mappers.DisciplinaMapper;
 import org.Pratica_SpringBoot.Repositories.CursoRepository;
 import org.Pratica_SpringBoot.Repositories.DisciplinaRepository;
+import org.Pratica_SpringBoot.Repositories.MatriculaRepository;
 import org.Pratica_SpringBoot.Repositories.ProfessorRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -41,12 +42,15 @@ class DisciplinaServiceTest {
     @Mock
     private ProfessorRepository professorRepository;
 
+    @Mock
+    private MatriculaRepository matriculaRepository;
+
     private DisciplinaService disciplinaService;
 
     @BeforeEach
     void setUp() {
         disciplinaService = new DisciplinaService(disciplinaRepository, Mappers.getMapper(DisciplinaMapper.class),
-                cursoRepository, professorRepository);
+                cursoRepository, professorRepository, matriculaRepository);
     }
 
     @Test
@@ -108,12 +112,23 @@ class DisciplinaServiceTest {
     void deletarDeveRemoverDisciplina() {
         Disciplina existente = disciplina(10L, "Programação", 1L, 2L);
         when(disciplinaRepository.findById(10L)).thenReturn(Optional.of(existente));
+        when(matriculaRepository.existsByDisciplina_Id(10L)).thenReturn(false);
 
         disciplinaService.deletar(10L);
 
         ArgumentCaptor<Disciplina> captor = ArgumentCaptor.forClass(Disciplina.class);
         verify(disciplinaRepository).delete(captor.capture());
         assertEquals(existente, captor.getValue());
+    }
+
+    @Test
+    void deletarDeveLancarQuandoDisciplinaPossuiMatriculas() {
+        Disciplina existente = disciplina(10L, "Programação", 1L, 2L);
+        when(disciplinaRepository.findById(10L)).thenReturn(Optional.of(existente));
+        when(matriculaRepository.existsByDisciplina_Id(10L)).thenReturn(true);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> disciplinaService.deletar(10L));
+        assertEquals("Esta disciplina não pode ser excluída pois possui matrículas vinculadas.", exception.getMessage());
     }
 
     private Curso curso(Long id) {

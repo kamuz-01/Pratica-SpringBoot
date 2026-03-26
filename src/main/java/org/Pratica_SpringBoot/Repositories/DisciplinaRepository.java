@@ -13,4 +13,8 @@ public interface DisciplinaRepository extends JpaRepository<Disciplina, Long> {
     Optional<Disciplina> findByCodigoDisciplina(String codigoDisciplina);
 
     List<Disciplina> findByCurso_IdCurso(Long idCurso);
+
+    boolean existsByProfessor_Id(Long id);
+
+    boolean existsByCurso_IdCurso(Long idCurso);
 }

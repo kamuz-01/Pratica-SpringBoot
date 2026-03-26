@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.Pratica_SpringBoot.Models.DTOs.CursoDTO;
 import org.Pratica_SpringBoot.Models.Entities.Curso;
 import org.Pratica_SpringBoot.Models.Mappers.CursoMapper;
+import org.Pratica_SpringBoot.Repositories.DisciplinaRepository;
 import org.Pratica_SpringBoot.Repositories.CursoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,11 +32,14 @@ class CursoServiceTest {
     @Mock
     private CursoRepository cursoRepository;
 
+    @Mock
+    private DisciplinaRepository disciplinaRepository;
+
     private CursoService cursoService;
 
     @BeforeEach
     void setUp() {
-        cursoService = new CursoService(cursoRepository, Mappers.getMapper(CursoMapper.class));
+        cursoService = new CursoService(cursoRepository, Mappers.getMapper(CursoMapper.class), disciplinaRepository);
     }
 
     @Test
@@ -111,12 +115,23 @@ class CursoServiceTest {
     void deletarDeveRemoverCursoExistente() {
         Curso existente = curso("ADS", "Análise e Desenvolvimento de Sistemas", null, 1L);
         when(cursoRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(disciplinaRepository.existsByCurso_IdCurso(1L)).thenReturn(false);
 
         cursoService.deletar(1L);
 
         ArgumentCaptor<Curso> captor = ArgumentCaptor.forClass(Curso.class);
         verify(cursoRepository).delete(captor.capture());
         assertEquals(existente, captor.getValue());
+    }
+
+    @Test
+    void deletarDeveLancarQuandoCursoPossuiDisciplinas() {
+        Curso existente = curso("ADS", "Análise e Desenvolvimento de Sistemas", null, 1L);
+        when(cursoRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(disciplinaRepository.existsByCurso_IdCurso(1L)).thenReturn(true);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> cursoService.deletar(1L));
+        assertEquals("Este curso não pode ser excluído pois possui disciplinas vinculadas.", exception.getMessage());
     }
 
     @Test

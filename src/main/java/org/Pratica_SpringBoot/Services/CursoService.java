@@ -6,6 +6,7 @@ import org.Pratica_SpringBoot.Models.DTOs.CursoDTO;
 import org.Pratica_SpringBoot.Models.Entities.Curso;
 import org.Pratica_SpringBoot.Models.Mappers.CursoMapper;
 import org.Pratica_SpringBoot.Repositories.CursoRepository;
+import org.Pratica_SpringBoot.Repositories.DisciplinaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,13 @@ public class CursoService {
 
     private final CursoRepository cursoRepository;
     private final CursoMapper cursoMapper;
+    private final DisciplinaRepository disciplinaRepository;
 
-    public CursoService(CursoRepository cursoRepository, CursoMapper cursoMapper) {
+    public CursoService(CursoRepository cursoRepository, CursoMapper cursoMapper,
+            DisciplinaRepository disciplinaRepository) {
         this.cursoRepository = cursoRepository;
         this.cursoMapper = cursoMapper;
+        this.disciplinaRepository = disciplinaRepository;
     }
 
     public CursoDTO criar(CursoDTO dto) {
@@ -47,7 +51,12 @@ public class CursoService {
     }
 
     public void deletar(Long id) {
-        cursoRepository.delete(buscarEntidadePorId(id));
+        Curso curso = buscarEntidadePorId(id);
+        if (disciplinaRepository.existsByCurso_IdCurso(id)) {
+            throw new IllegalStateException("Este curso não pode ser excluído pois possui disciplinas vinculadas.");
+        }
+
+        cursoRepository.delete(curso);
     }
 
     private Curso buscarEntidadePorId(Long id) {

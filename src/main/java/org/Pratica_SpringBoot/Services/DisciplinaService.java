@@ -9,6 +9,7 @@ import org.Pratica_SpringBoot.Models.Entities.Professor;
 import org.Pratica_SpringBoot.Models.Mappers.DisciplinaMapper;
 import org.Pratica_SpringBoot.Repositories.CursoRepository;
 import org.Pratica_SpringBoot.Repositories.DisciplinaRepository;
+import org.Pratica_SpringBoot.Repositories.MatriculaRepository;
 import org.Pratica_SpringBoot.Repositories.ProfessorRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,14 +24,17 @@ public class DisciplinaService {
     private final DisciplinaMapper disciplinaMapper;
     private final CursoRepository cursoRepository;
     private final ProfessorRepository professorRepository;
+    private final MatriculaRepository matriculaRepository;
 
     public DisciplinaService(DisciplinaRepository disciplinaRepository, DisciplinaMapper disciplinaMapper,
             CursoRepository cursoRepository,
-            ProfessorRepository professorRepository) {
+            ProfessorRepository professorRepository,
+            MatriculaRepository matriculaRepository) {
         this.disciplinaRepository = disciplinaRepository;
         this.disciplinaMapper = disciplinaMapper;
         this.cursoRepository = cursoRepository;
         this.professorRepository = professorRepository;
+        this.matriculaRepository = matriculaRepository;
     }
 
     public DisciplinaDTO criar(DisciplinaDTO dto) {
@@ -55,7 +59,12 @@ public class DisciplinaService {
     }
 
     public void deletar(Long id) {
-        disciplinaRepository.delete(buscarEntidadePorId(id));
+        Disciplina disciplina = buscarEntidadePorId(id);
+        if (matriculaRepository.existsByDisciplina_Id(id)) {
+            throw new IllegalStateException("Esta disciplina não pode ser excluída pois possui matrículas vinculadas.");
+        }
+
+        disciplinaRepository.delete(disciplina);
     }
 
     private Disciplina buscarEntidadePorId(Long id) {

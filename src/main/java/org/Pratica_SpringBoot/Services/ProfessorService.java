@@ -6,6 +6,7 @@ import org.Pratica_SpringBoot.GerenciamentoErros.ManipuladorExcecoesGlobais.CpfD
 import org.Pratica_SpringBoot.Models.DTOs.ProfessorDTO;
 import org.Pratica_SpringBoot.Models.Entities.Professor;
 import org.Pratica_SpringBoot.Models.Mappers.ProfessorMapper;
+import org.Pratica_SpringBoot.Repositories.DisciplinaRepository;
 import org.Pratica_SpringBoot.Repositories.ProfessorRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,14 +22,17 @@ public class ProfessorService {
     private final ProfessorMapper professorMapper;
     private final SenhaCriptografiaService senhaCriptografiaService;
     private final UsuarioImagemStorageService usuarioImagemStorageService;
+    private final DisciplinaRepository disciplinaRepository;
 
     public ProfessorService(ProfessorRepository professorRepository, ProfessorMapper professorMapper,
             SenhaCriptografiaService senhaCriptografiaService,
-            UsuarioImagemStorageService usuarioImagemStorageService) {
+            UsuarioImagemStorageService usuarioImagemStorageService,
+            DisciplinaRepository disciplinaRepository) {
         this.professorRepository = professorRepository;
         this.professorMapper = professorMapper;
         this.senhaCriptografiaService = senhaCriptografiaService;
         this.usuarioImagemStorageService = usuarioImagemStorageService;
+        this.disciplinaRepository = disciplinaRepository;
     }
 
     public ProfessorDTO criar(ProfessorDTO dto) {
@@ -79,7 +83,12 @@ public class ProfessorService {
     }
 
     public void deletar(Long id) {
-        professorRepository.delete(buscarEntidadePorId(id));
+        Professor professor = buscarEntidadePorId(id);
+        if (disciplinaRepository.existsByProfessor_Id(id)) {
+            throw new IllegalStateException("Este professor não pode ser excluído pois possui disciplinas vinculadas.");
+        }
+
+        professorRepository.delete(professor);
     }
 
     private Professor buscarEntidadePorId(Long id) {

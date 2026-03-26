@@ -8,6 +8,7 @@ import org.Pratica_SpringBoot.GerenciamentoErros.ManipuladorExcecoesGlobais.CpfD
 import org.Pratica_SpringBoot.Models.DTOs.ProfessorDTO;
 import org.Pratica_SpringBoot.Models.Entities.Professor;
 import org.Pratica_SpringBoot.Models.Mappers.ProfessorMapper;
+import org.Pratica_SpringBoot.Repositories.DisciplinaRepository;
 import org.Pratica_SpringBoot.Repositories.ProfessorRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -38,12 +39,15 @@ class ProfessorServiceTest {
     @Mock
     private UsuarioImagemStorageService usuarioImagemStorageService;
 
+    @Mock
+    private DisciplinaRepository disciplinaRepository;
+
     private ProfessorService professorService;
 
     @BeforeEach
     void setUp() {
         professorService = new ProfessorService(professorRepository, Mappers.getMapper(ProfessorMapper.class),
-                senhaCriptografiaService, usuarioImagemStorageService);
+                senhaCriptografiaService, usuarioImagemStorageService, disciplinaRepository);
     }
 
     @Test
@@ -104,12 +108,23 @@ class ProfessorServiceTest {
     void deletarDeveRemoverProfessor() {
         Professor existente = professor(1L, "987.654.321-00", "hash", null);
         when(professorRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(disciplinaRepository.existsByProfessor_Id(1L)).thenReturn(false);
 
         professorService.deletar(1L);
 
         ArgumentCaptor<Professor> captor = ArgumentCaptor.forClass(Professor.class);
         verify(professorRepository).delete(captor.capture());
         assertEquals(existente, captor.getValue());
+    }
+
+    @Test
+    void deletarDeveLancarQuandoProfessorPossuiDisciplinas() {
+        Professor existente = professor(1L, "987.654.321-00", "hash", null);
+        when(professorRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(disciplinaRepository.existsByProfessor_Id(1L)).thenReturn(true);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> professorService.deletar(1L));
+        assertEquals("Este professor não pode ser excluído pois possui disciplinas vinculadas.", exception.getMessage());
     }
 
     private Professor professor(Long id, String cpf, String senha, String imagemPerfil) {

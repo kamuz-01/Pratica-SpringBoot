@@ -9,6 +9,7 @@ import org.Pratica_SpringBoot.Models.DTOs.EstudanteDTO;
 import org.Pratica_SpringBoot.Models.Entities.Estudante;
 import org.Pratica_SpringBoot.Models.Mappers.EstudanteMapper;
 import org.Pratica_SpringBoot.Repositories.EstudanteRepository;
+import org.Pratica_SpringBoot.Repositories.MatriculaRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,12 +35,15 @@ class EstudanteServiceTest {
     @Mock
     private UsuarioImagemStorageService usuarioImagemStorageService;
 
+    @Mock
+    private MatriculaRepository matriculaRepository;
+
     private EstudanteService estudanteService;
 
     @BeforeEach
     void setUp() {
         estudanteService = new EstudanteService(estudanteRepository, Mappers.getMapper(EstudanteMapper.class),
-                senhaCriptografiaService, usuarioImagemStorageService);
+                senhaCriptografiaService, usuarioImagemStorageService, matriculaRepository);
     }
 
     @Test
@@ -136,12 +140,23 @@ class EstudanteServiceTest {
     void deletarDeveRemoverEstudanteExistente() {
         Estudante existente = estudante(1L, "123.456.789-09", "hash", null);
         when(estudanteRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(matriculaRepository.existsByEstudante_Id(1L)).thenReturn(false);
 
         estudanteService.deletar(1L);
 
         ArgumentCaptor<Estudante> captor = ArgumentCaptor.forClass(Estudante.class);
         verify(estudanteRepository).delete(captor.capture());
         assertEquals(existente, captor.getValue());
+    }
+
+    @Test
+    void deletarDeveLancarQuandoEstudantePossuiMatriculas() {
+        Estudante existente = estudante(1L, "123.456.789-09", "hash", null);
+        when(estudanteRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(matriculaRepository.existsByEstudante_Id(1L)).thenReturn(true);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> estudanteService.deletar(1L));
+        assertEquals("Este estudante não pode ser excluído pois possui matrículas vinculadas.", exception.getMessage());
     }
 
     private Estudante estudante(Long id, String cpf, String senha, String imagemPerfil) {
