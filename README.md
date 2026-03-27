@@ -53,8 +53,9 @@ O projeto explora na prática conceitos como:
 
 - Relacionamentos **OneToMany** e **ManyToOne** com JPA/Hibernate
 - Herança entre entidades com estratégia `JOINED`
+- Mapeamento DTO ↔ Entity com **MapStruct**
 - Upload e armazenamento de imagens de perfil
-- Criptografia de senhas com PBKDF2 + salt
+- Criptografia de senhas com **BCrypt**
 - Tratamento global e centralizado de exceções
 - Logging estruturado por arquivo e por nível
 - Documentação automática com SpringDoc/OpenAPI
@@ -80,6 +81,7 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
 | **Repository** | Acesso ao banco via Spring Data JPA |
 | **DTO** | Contrato da API — o que entra e o que sai |
 | **Entity** | Mapeamento objeto-relacional com JPA |
+| **Mapper** | Conversão entre DTO e Entity com MapStruct |
 | **GerenciamentoErros** | Tratamento centralizado de todas as exceções do sistema |
 
 ---
@@ -112,6 +114,10 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
 - Controle de frequência (0–100%) e nota final (0–10)
 - Status da matrícula: `ATIVA`, `TRANCADA`, `CANCELADA`, `CONCLUIDA`
 - Unicidade garantida por estudante + disciplina + semestre
+
+### 🛡️ Proteção de exclusão
+- Exclusões de estudantes, professores, cursos e disciplinas são bloqueadas quando existem dependências vinculadas
+- O serviço valida os vínculos antes de remover e o banco também protege por chaves estrangeiras
 
 ---
 
@@ -252,10 +258,10 @@ Todas as exceções são interceptadas e tratadas de forma centralizada pela cla
 
 ## 🔒 Segurança
 
-As senhas **nunca são armazenadas em texto puro**. O sistema utiliza o algoritmo **PBKDF2 com HMAC-SHA256**, com salt aleatório de 16 bytes e 65.536 iterações, garantindo resistência a ataques de força bruta e rainbow tables.
+As senhas **nunca são armazenadas em texto puro**. O sistema utiliza **BCrypt** com strength 10, gerando hash antes de persistir os dados e evitando expor a senha em respostas da API.
 
 ```
-senha em texto  ──►  [salt aleatório + PBKDF2/SHA256 x 65536]  ──►  "base64(salt):base64(hash)"
+senha em texto  ──►  BCrypt (strength 10)  ──►  hash armazenado
 ```
 
 ---
@@ -375,6 +381,12 @@ src/main/java/org/Pratica_SpringBoot/
 │   │   ├── Curso
 │   │   ├── Disciplina
 │   │   └── Matricula
+│   ├── Mappers/              # Conversão DTO ↔ Entity com MapStruct
+│   │   ├── EstudanteMapper
+│   │   ├── ProfessorMapper
+│   │   ├── CursoMapper
+│   │   ├── DisciplinaMapper
+│   │   └── MatriculaMapper
 │   └── Enums/
 │       └── StatusMatricula   # ATIVA | TRANCADA | CANCELADA | CONCLUIDA
 │
@@ -391,7 +403,7 @@ src/main/java/org/Pratica_SpringBoot/
     ├── EstudanteService
     ├── MatriculaService
     ├── ProfessorService
-    ├── SenhaCriptografiaService      # PBKDF2 + salt
+    ├── SenhaCriptografiaService      # BCrypt strength 10
     └── UsuarioImagemStorageService   # Upload e persistência de imagens
 ```
 
