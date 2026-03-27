@@ -309,7 +309,7 @@ CREATE DATABASE pratica_springboot;
 Crie um arquivo `.env` na raiz do projeto (já ignorado pelo `.gitignore`):
 
 ```env
-DB_URL=jdbc:mysql://localhost:3306/pratica_springboot
+DB_URL=jdbc:jdbc:mysql://localhost:3306/pratica_springboot?useSSL=false&serverTimezone=UTC
 DB_USERNAME=root
 DB_PASSWORD=sua_senha
 ```
