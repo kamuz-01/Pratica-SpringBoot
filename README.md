@@ -213,18 +213,18 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
         │    │
         │  N │ N
         └────▼────────┐
-          ┌───────────┴──┐
-          │   Matricula  │
-          │──────────────│
-          │ id           │
-          │ estudante(FK)│
-          │ disciplina(FK│
-          │ semestre     │
-          │ dataMatricula│
-          │ frequencia   │
-          │ notaFinal    │
-          │ status       │
-          └──────────────┘
+          ┌───────────┴───┐
+          │   Matricula   │
+          │───────────────│
+          │ id            │
+          │ estudante(FK) │
+          │ disciplina(FK)│
+          │ semestre      │
+          │ dataMatricula │
+          │ frequencia    │
+          │ notaFinal     │
+          │ status        │
+          └───────────────┘
 ```
 
 **Herança de Usuario:** `InheritanceType.JOINED` — a tabela `usuario` armazena os campos comuns; `estudante` e `professor` possuem tabelas próprias com suas colunas específicas e uma FK para `usuario`.
