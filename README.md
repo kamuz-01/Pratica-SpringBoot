@@ -24,6 +24,7 @@
     - [📚 Cursos](#-cursos)
     - [📖 Disciplinas](#-disciplinas)
     - [📝 Matrículas](#-matrículas)
+    - [🛡️ Proteção de exclusão](#️-proteção-de-exclusão)
   - [🔌 Endpoints da API](#-endpoints-da-api)
     - [Estudantes — `/api/estudantes`](#estudantes--apiestudantes)
     - [Professores — `/api/professores`](#professores--apiprofessores)
@@ -418,6 +419,8 @@ Contribuições são bem-vindas! Consulte o arquivo [CONTRIBUTING.md](CONTRIBUTI
 <div align="center">
 
 Desenvolvido como projeto de prática com **Spring Boot**, **JPA** e **Git**
+
+<strong><em>Todos os direitos reservados © 2026</em></strong>
 
 **[⬆ Voltar ao topo](#-sistema-de-gestão-escolar--api-rest)**
 
