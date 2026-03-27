@@ -41,14 +41,14 @@
     - [Variáveis de ambiente](#variáveis-de-ambiente)
     - [Executando](#executando)
   - [📖 Documentação Swagger](#-documentação-swagger)
-  - [📁 Estrutura do Projeto](#-estrutura-do-projeto)
+  - [🧪 Testes](#-testes)
   - [🤝 Contribuindo](#-contribuindo)
 
 ---
 
 ## 💡 Sobre o Projeto
 
-Este projeto é uma **API REST** construída como prática de desenvolvimento com **Spring Boot**, **Git** e **GitHub**. O sistema simula o back-end de uma instituição de ensino, permitindo gerenciar o cadastro de pessoas, organização acadêmica e matrículas.
+Este projeto é uma **API REST** construída como projeto prático para consolidar conhecimentos em desenvolvimento com **Spring Boot**, **Git** e **GitHub**. O sistema simula o back-end de uma instituição de ensino, permitindo gerenciar o cadastro de pessoas, organização acadêmica e matrículas.
 
 O projeto explora na prática conceitos como:
 
@@ -65,7 +65,8 @@ O projeto explora na prática conceitos como:
 
 ## 🏗 Arquitetura
 
-O projeto segue o padrão em camadas tradicional do ecossistema Spring:
+O projeto segue o padrão arquitetural em camadas (Layered Architecture),
+amplamente adotado no ecossistema Spring:
 
 ```
 Controller  ──►  Service  ──►  Repository  ──►  Database
@@ -91,13 +92,13 @@ Controller  ──►  Service  ──►  Repository  ──►  Database
 
 ### 👨‍🎓 Estudantes
 - Cadastro completo com dados pessoais e número de matrícula
-- Upload opcional de foto de perfil (multipart/form-data)
+- Upload opcional de imagem de perfil (multipart/form-data)
 - Validação de CPF (formato e unicidade)
 - Atualização e remoção
 
 ### 👨‍🏫 Professores
 - Cadastro com especialidade acadêmica
-- Upload opcional de foto de perfil (multipart/form-data)
+- Upload opcional de imagem de perfil (multipart/form-data)
 - Validação de CPF (formato e unicidade)
 - Atualização e remoção
 
@@ -251,7 +252,7 @@ Todas as exceções são interceptadas e tratadas de forma centralizada pela cla
 | `400` | Validação de campos, JSON inválido, parâmetro de URL errado |
 | `404` | Recurso ou rota não encontrada |
 | `409` | CPF duplicado, violação de constraint única no banco |
-| `413` | Imagem de perfil acima de 5 MB |
+| `413` | Imagem de perfil acima do limite configurado (5 MB) |
 | `422` | Regra de negócio violada |
 | `500` | Erro interno inesperado |
 
@@ -259,7 +260,7 @@ Todas as exceções são interceptadas e tratadas de forma centralizada pela cla
 
 ## 🔒 Segurança
 
-As senhas **nunca são armazenadas em texto puro**. O sistema utiliza **BCrypt** com strength 10, gerando hash antes de persistir os dados e evitando expor a senha em respostas da API.
+As senhas **nunca são armazenadas em texto puro**. O sistema utiliza **BCrypt** com strength 10, gerando hash antes de persistir os dados e garantindo que senhas nunca sejam expostas nas respostas da API.
 
 ```
 senha em texto  ──►  BCrypt (strength 10)  ──►  hash armazenado
@@ -318,7 +319,7 @@ DB_PASSWORD=sua_senha
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/Pratica_SpringBoot.git
+git clone https://github.com/kamuz-01/Pratica-SpringBoot.git
 cd Pratica_SpringBoot
 
 # Execute com Maven Wrapper
@@ -338,6 +339,18 @@ http://localhost:8080/swagger-ui/index.html
 ```
 
 A documentação lista todos os endpoints, schemas de entrada e saída, e permite testar as requisições diretamente pelo navegador.
+
+---
+
+## 🧪 Testes
+
+O projeto possui testes unitários e de integração para os controllers,
+garantindo a confiabilidade dos endpoints e regras de negócio.
+
+Para executar:
+
+```bash
+./mvnw test
 
 ---
 
