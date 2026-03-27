@@ -42,6 +42,7 @@
     - [Executando](#executando)
   - [📖 Documentação Swagger](#-documentação-swagger)
   - [🧪 Testes](#-testes)
+  - [📁 Estrutura do Projeto](#-estrutura-do-projeto)
   - [🤝 Contribuindo](#-contribuindo)
 
 ---
@@ -300,7 +301,7 @@ O interceptor de acesso é registrado via `WebMvcConfigurer` e registra cada req
 Crie o banco de dados no MySQL:
 
 ```sql
-CREATE DATABASE pratica_springboot_one_to_one;
+CREATE DATABASE pratica_springboot;
 ```
 
 ### Variáveis de ambiente
@@ -308,7 +309,7 @@ CREATE DATABASE pratica_springboot_one_to_one;
 Crie um arquivo `.env` na raiz do projeto (já ignorado pelo `.gitignore`):
 
 ```env
-DB_URL=jdbc:mysql://localhost:3306/pratica_springboot_one_to_one
+DB_URL=jdbc:mysql://localhost:3306/pratica_springboot
 DB_USERNAME=root
 DB_PASSWORD=sua_senha
 ```
@@ -351,6 +352,7 @@ Para executar:
 
 ```bash
 ./mvnw test
+```
 
 ---
 
